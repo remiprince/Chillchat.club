@@ -84,7 +84,12 @@
         
     <div class="chatbox" style="margin-top: 10px;">
         <div class="chat-messages" id="chat"></div>
-        <input type="text" id="message" placeholder="Say something..." autocomplete="off">
+        
+    <div style="display: flex; gap: 10px;">
+        <input type="text" id="message" placeholder="Say something..." autocomplete="off" style="flex: 1;">
+        <button id="sendBtn" style="padding: 8px 16px;">Send</button>
+    </div>
+    
     </div>
     
             <div class="chat-messages" id="chat"></div>
@@ -108,7 +113,11 @@
         const messageInput = document.getElementById('message');
 
         async function startChat() {
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true         if (e.key === "Enter") sendMessage();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+    
             localVideo.srcObject = localStream;
             socket.emit("join-random");
         }
@@ -125,13 +134,38 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        messageInput.addEventListener("keypress", function(e) {
+        
+    const sendBtn = document.getElementById("sendBtn");
+
+    function sendMessage() {
+        const msg = messageInput.value.trim();
+        if (msg) {
+            socket.emit("chat-message", { to: remoteSocketId, text: msg         if (e.key === "Enter") sendMessage();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+    
+            appendChat(msg);
+            messageInput.value = "";
+        }
+    }
+
+    messageInput.addEventListener("keypress", function(e) {
+    
             if (e.key === "Enter" && messageInput.value.trim()) {
-                socket.emit("chat-message", { to: remoteSocketId, text: messageInput.value });
+                socket.emit("chat-message", { to: remoteSocketId, text: messageInput.value         if (e.key === "Enter") sendMessage();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+    
                 appendChat(messageInput.value);
                 messageInput.value = "";
             }
-        });
+                if (e.key === "Enter") sendMessage();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+    
 
         socket.on("connect-random", ({ id }) => {
             remoteSocketId = id;
@@ -140,7 +174,11 @@
 
             peerConnection.onicecandidate = event => {
                 if (event.candidate) {
-                    socket.emit("ice-candidate", { to: id, candidate: event.candidate });
+                    socket.emit("ice-candidate", { to: id, candidate: event.candidate         if (e.key === "Enter") sendMessage();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+    
                 }
             };
 
@@ -150,9 +188,21 @@
 
             peerConnection.createOffer().then(offer => {
                 peerConnection.setLocalDescription(offer);
-                socket.emit("offer", { to: id, sdp: offer });
-            });
-        });
+                socket.emit("offer", { to: id, sdp: offer         if (e.key === "Enter") sendMessage();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+    
+                    if (e.key === "Enter") sendMessage();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+    
+                if (e.key === "Enter") sendMessage();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+    
 
         socket.on("offer", ({ from, sdp }) => {
             remoteSocketId = from;
@@ -162,8 +212,16 @@
             peerConnection.setRemoteDescription(new RTCSessionDescription(sdp));
             peerConnection.createAnswer().then(answer => {
                 peerConnection.setLocalDescription(answer);
-                socket.emit("answer", { to: from, sdp: answer });
-            });
+                socket.emit("answer", { to: from, sdp: answer         if (e.key === "Enter") sendMessage();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+    
+                    if (e.key === "Enter") sendMessage();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+    
 
             peerConnection.ontrack = event => {
                 remoteVideo.srcObject = event.streams[0];
@@ -171,22 +229,42 @@
 
             peerConnection.onicecandidate = event => {
                 if (event.candidate) {
-                    socket.emit("ice-candidate", { to: from, candidate: event.candidate });
+                    socket.emit("ice-candidate", { to: from, candidate: event.candidate         if (e.key === "Enter") sendMessage();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+    
                 }
             };
-        });
+                if (e.key === "Enter") sendMessage();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+    
 
         socket.on("answer", ({ sdp }) => {
             peerConnection.setRemoteDescription(new RTCSessionDescription(sdp));
-        });
+                if (e.key === "Enter") sendMessage();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+    
 
         socket.on("ice-candidate", ({ candidate }) => {
             peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-        });
+                if (e.key === "Enter") sendMessage();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+    
 
         socket.on("chat-message", ({ text }) => {
             appendChat(text, true);
-        });
+                if (e.key === "Enter") sendMessage();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
+    
 
         startChat();
     </script>
