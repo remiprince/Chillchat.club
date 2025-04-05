@@ -3,6 +3,20 @@
 <html>
 <head>
     <title>Video Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        video {
+            width: 45%;
+            height: auto;
+            margin: 10px;
+            border: 2px solid #444;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
     <h1>User Video Chat</h1>
@@ -20,11 +34,17 @@
         const localVideo = document.getElementById('local');
         const remoteVideo = document.getElementById('remote');
 
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
-            localStream = stream;
-            localVideo.srcObject = stream;
-            socket.emit('join', room);
-        });
+        async function initMedia() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                localVideo.srcObject = localStream;
+                socket.emit('join', room);
+            } catch (err) {
+                alert("Error accessing camera/mic: " + err.message);
+            }
+        }
+
+        initMedia();
 
         socket.on('user-joined', id => {
             peerConnection = new RTCPeerConnection(config);
