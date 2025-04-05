@@ -89,9 +89,9 @@
     </main>
     <footer>Not affiliated with Omegle. ChillChat is your safe place to talk to strangers.</footer>
 
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://chillchatbackend-9qgx2.ondigitalocean.app/socket.io/socket.io.js"></script>
     <script>
-        const socket = io();
+        const socket = io("https://chillchatbackend-9qgx2.ondigitalocean.app");
         let localStream;
         let peerConnection;
         let remoteSocketId = null;
@@ -110,7 +110,7 @@
 
         function nextStranger() {
             socket.emit("leave-room", remoteSocketId);
-            window.location.reload(); // simple way to reset everything
+            window.location.reload();
         }
 
         function appendChat(text, isRemote = false) {
