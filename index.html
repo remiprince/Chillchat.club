@@ -2,39 +2,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Video Chat</title>
+    <title>ChillChat - Video Chat</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f4f4f4;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
         }
         video {
             width: 45%;
-            height: auto;
             margin: 10px;
-            border: 2px solid #444;
+            border: 2px solid #ccc;
             border-radius: 8px;
+        }
+        #startBtn {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>User Video Chat</h1>
+    <h1>ChillChat</h1>
+    <button id="startBtn">Start Chat</button><br>
     <video id="local" autoplay muted playsinline></video>
     <video id="remote" autoplay playsinline></video>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
         const room = 'default';
 
+        const localVideo = document.getElementById('local');
+        const remoteVideo = document.getElementById('remote');
+        const startBtn = document.getElementById('startBtn');
+
         let localStream;
         let peerConnection;
         const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
-        const localVideo = document.getElementById('local');
-        const remoteVideo = document.getElementById('remote');
-
-        async function initMedia() {
+        startBtn.onclick = async () => {
+            startBtn.disabled = true;
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 localVideo.srcObject = localStream;
@@ -42,9 +60,7 @@
             } catch (err) {
                 alert("Error accessing camera/mic: " + err.message);
             }
-        }
-
-        initMedia();
+        };
 
         socket.on('user-joined', id => {
             peerConnection = new RTCPeerConnection(config);
