@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Chat</title>
+</head>
+<body>
+    <h1>User Video Chat</h1>
+    <video id="local" autoplay muted playsinline></video>
+    <video id="remote" autoplay playsinline></video>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const room = 'default';
+
+        let localStream;
+        let peerConnection;
+        const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+
+        const localVideo = document.getElementById('local');
+        const remoteVideo = document.getElementById('remote');
+
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+            localStream = stream;
+            localVideo.srcObject = stream;
+            socket.emit('join', room);
+        });
+
+        socket.on('user-joined', id => {
+            peerConnection = new RTCPeerConnection(config);
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+            peerConnection.onicecandidate = event => {
+                if (event.candidate) {
+                    socket.emit('ice-candidate', { target: id, candidate: event.candidate });
+                }
+            };
+
+            peerConnection.ontrack = event => {
+                remoteVideo.srcObject = event.streams[0];
+            };
+
+            peerConnection.createOffer().then(offer => {
+                peerConnection.setLocalDescription(offer);
+                socket.emit('offer', { target: id, sdp: offer });
+            });
+        });
+
+        socket.on('offer', data => {
+            peerConnection = new RTCPeerConnection(config);
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+            peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp));
+            peerConnection.createAnswer().then(answer => {
+                peerConnection.setLocalDescription(answer);
+                socket.emit('answer', { target: data.caller, sdp: answer });
+            });
+
+            peerConnection.ontrack = event => {
+                remoteVideo.srcObject = event.streams[0];
+            };
+
+            peerConnection.onicecandidate = event => {
+                if (event.candidate) {
+                    socket.emit('ice-candidate', { target: data.caller, candidate: event.candidate });
+                }
+            };
+        });
+
+        socket.on('answer', data => {
+            peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp));
+        });
+
+        socket.on('ice-candidate', data => {
+            peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+        });
+    </script>
+</body>
+</html>
