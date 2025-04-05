@@ -2,28 +2,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ChillChat - Omegle Style</title>
+    <title>ChillChat - Fully Functional</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
             color: #333;
+            text-align: center;
         }
         header {
             background-color: #007bff;
             color: white;
-            padding: 10px 20px;
-            text-align: center;
+            padding: 10px;
             font-size: 24px;
             font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        main {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .content {
             padding: 20px;
         }
         .video-wrapper {
@@ -40,50 +36,62 @@
             border: 2px solid #ccc;
             border-radius: 8px;
         }
+        #startBtn {
+            margin-top: 15px;
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
         footer {
             margin-top: 30px;
-            font-size: 14px;
-            color: #666;
+            font-size: 13px;
+            color: #999;
         }
     </style>
 </head>
 <body>
     <header>ChillChat</header>
-    <main>
+    <div class="content">
         <p>You are now chatting with a random stranger. Say hi!</p>
+        <button id="startBtn">Start Chat</button>
         <div class="video-wrapper">
             <video id="local" autoplay muted playsinline></video>
             <video id="remote" autoplay playsinline></video>
         </div>
-        <footer>
-            Not affiliated with Omegle. Built with love by Remi.
-        </footer>
-    </main>
+        <footer>Built with ChillChat.</footer>
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
         const room = 'default';
-
         const localVideo = document.getElementById('local');
         const remoteVideo = document.getElementById('remote');
-        let localStream;
-        let peerConnection;
+        const startBtn = document.getElementById('startBtn');
+
+        let localStream = null;
+        let peerConnection = null;
         const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
-        async function initMedia() {
+        startBtn.onclick = async () => {
+            console.log("Start Chat button clicked");
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 localVideo.srcObject = localStream;
                 socket.emit('join', room);
+                startBtn.style.display = 'none';
             } catch (err) {
-                alert("Camera/Mic blocked: " + err.message);
+                console.error("Camera/Mic error:", err);
+                alert("Please allow camera and microphone access.");
             }
-        }
-
-        initMedia();
+        };
 
         socket.on('user-joined', id => {
+            console.log("User joined, creating offer");
             peerConnection = new RTCPeerConnection(config);
             localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
@@ -94,23 +102,28 @@
             };
 
             peerConnection.ontrack = event => {
+                console.log("Track received");
                 remoteVideo.srcObject = event.streams[0];
             };
 
             peerConnection.createOffer().then(offer => {
-                peerConnection.setLocalDescription(offer);
-                socket.emit('offer', { target: id, sdp: offer });
+                return peerConnection.setLocalDescription(offer);
+            }).then(() => {
+                socket.emit('offer', { target: id, sdp: peerConnection.localDescription });
             });
         });
 
         socket.on('offer', data => {
+            console.log("Offer received");
             peerConnection = new RTCPeerConnection(config);
             localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
-            peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp));
-            peerConnection.createAnswer().then(answer => {
-                peerConnection.setLocalDescription(answer);
-                socket.emit('answer', { target: data.caller, sdp: answer });
+            peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp)).then(() => {
+                return peerConnection.createAnswer();
+            }).then(answer => {
+                return peerConnection.setLocalDescription(answer);
+            }).then(() => {
+                socket.emit('answer', { target: data.caller, sdp: peerConnection.localDescription });
             });
 
             peerConnection.ontrack = event => {
@@ -125,10 +138,12 @@
         });
 
         socket.on('answer', data => {
+            console.log("Answer received");
             peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp));
         });
 
         socket.on('ice-candidate', data => {
+            console.log("ICE candidate received");
             peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
         });
     </script>
