@@ -1,1 +1,1 @@
-console.log('Frontend logic active');
+console.log('ChillChat script loaded');
