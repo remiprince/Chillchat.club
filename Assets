@@ -1,0 +1,8 @@
+/main
+  ├── index.html
+  ├── script.js
+  ├── styles.css
+  └── assets/
+        └── logo.svg
+
+<img src="assets/logo.svg" alt="ChillChat Logo" class="logo" />
