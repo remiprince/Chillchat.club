@@ -1,38 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>ChillChat</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <header>
-        <img src="assets/logo.svg" alt="ChillChat Logo" class="logo">
-        <h1>ChillChat</h1>
-        <p>Users Online: <span id="userCount">0</span></p>
-    </header>
-    <main>
-        <div class="video-container">
-            <video id="localVideo" autoplay muted></video>
-            <video id="remoteVideo" autoplay></video>
-        </div>
-        <div class="chat-container">
-            <div id="chatBox" class="chat-box"></div>
-            <div class="chat-input">
-                <input type="text" id="chatMessage" placeholder="Type a message...">
-                <button id="sendBtn">Send</button>
-            </div>
-        </div>
-        <div class="controls">
-            <button id="nextBtn">Next Stranger</button>
-            <button id="muteBtn">Mute</button>
-            <button id="likeBtn">Like</button>
-            <button id="reportBtn">Report</button>
-        </div>
-    </main>
-    <footer>
-        <p>Not affiliated with Omegle. ChillChat is your safe place to talk to strangers.</p>
-    </footer>
-    <script src="script.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>ChillChat - Connect with Cosmic Friends</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Righteous&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <!-- This script injects a replit badge into the page, please feel free to remove this line -->
+    <script type="text/javascript" src="https://replit.com/public/js/replit-badge-v3.js"></script>
+  </body>
 </html>
