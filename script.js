@@ -1,4 +1,12 @@
-const socket = io(); // Connect to your backend (ensure the URL is set if needed)
+navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+  .then(stream => {
+    const myVideo = document.getElementById('myVideo');
+    myVideo.srcObject = stream;
+    myVideo.play();
+  })
+  .catch(error => {
+    console.error('Camera access denied or not available:', error);
+  });const socket = io(); // Connect to your backend (ensure the URL is set if needed)
 
 let localStream;
 let peerConnection;
