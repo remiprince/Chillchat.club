@@ -1,8 +1,9 @@
-const socket = io();
 
+const socket = io();
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 const messagesDiv = document.getElementById('messages');
+const typingIndicator = document.getElementById('typing-indicator');
 const messageInput = document.getElementById('messageInput');
 const chatForm = document.getElementById('chat-form');
 const nextBtn = document.getElementById('nextBtn');
@@ -11,7 +12,6 @@ const userCountEl = document.getElementById('user-count');
 let peerConnection;
 let localStream;
 
-// Get user media
 navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
   localStream = stream;
   localVideo.srcObject = stream;
@@ -45,22 +45,17 @@ socket.on('disconnectPeer', () => {
 
 function createPeer() {
   const peer = new RTCPeerConnection();
-
   localStream.getTracks().forEach(track => peer.addTrack(track, localStream));
-
   peer.ontrack = e => {
     remoteVideo.srcObject = e.streams[0];
   };
-
   peer.onicecandidate = e => {
     if (e.candidate) socket.emit('candidate', e.candidate);
   };
-
   socket.emit('createOffer');
   return peer;
 }
 
-// Messaging
 chatForm.addEventListener('submit', e => {
   e.preventDefault();
   const message = messageInput.value;
@@ -69,6 +64,15 @@ chatForm.addEventListener('submit', e => {
     appendMessage('You: ' + message);
     messageInput.value = '';
   }
+});
+
+messageInput.addEventListener('input', () => {
+  socket.emit('typing');
+});
+
+socket.on('typing', () => {
+  typingIndicator.style.display = 'block';
+  setTimeout(() => typingIndicator.style.display = 'none', 1000);
 });
 
 socket.on('message', msg => {
