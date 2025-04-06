@@ -1,1 +1,1 @@
-console.log('Video and chat system running');
+console.log('Frontend logic active');
